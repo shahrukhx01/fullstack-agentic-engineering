@@ -1,5 +1,6 @@
 {
   "name": "Fullstack Agentic Engineering",
+  "theme": "mint",
   "navigation": [
     {
       "group": "Agentic Design Patterns",
