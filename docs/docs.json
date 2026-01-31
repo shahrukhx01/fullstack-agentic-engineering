@@ -1,0 +1,35 @@
+{
+  "name": "Fullstack Agentic Engineering",
+  "navigation": [
+    {
+      "group": "Agentic Design Patterns",
+      "pages": [
+        "agentic-design-patterns",
+        {
+          "group": "Autogen",
+          "pages": [
+            "agentic-design-patterns/autogen"
+          ]
+        },
+        {
+          "group": "CrewAI",
+          "pages": [
+            "agentic-design-patterns/crewai"
+          ]
+        },
+        {
+          "group": "LangGraph",
+          "pages": [
+            "agentic-design-patterns/langgraph",
+            "agentic-design-patterns/langgraph/react-agents",
+            "agentic-design-patterns/langgraph/reflex-agents",
+            "agentic-design-patterns/langgraph/reflection-agents",
+            "agentic-design-patterns/langgraph/query-decomposition-agents",
+            "agentic-design-patterns/langgraph/planner-executor-agents",
+            "agentic-design-patterns/langgraph/deep-research-agents"
+          ]
+        }
+      ]
+    }
+  ]
+}
