@@ -1,11 +1,16 @@
 {
+  "$schema": "https://mintlify.com/docs.json",
   "name": "Fullstack Agentic Engineering",
   "theme": "mint",
-  "navigation": [
-    {
-      "group": "Agentic Design Patterns",
-      "pages": [
-        "agentic-design-patterns",
+  "colors": {
+    "primary": "#10b981"
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Agentic Design Patterns",
+        "pages": [
+          "agentic-design-patterns",
         {
           "group": "Autogen",
           "pages": [
@@ -30,7 +35,7 @@
             "agentic-design-patterns/langgraph/deep-research-agents"
           ]
         }
-      ]
-    }
-  ]
+      }
+    ]
+  }
 }
