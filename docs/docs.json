@@ -18,19 +18,16 @@
               {
                 "group": "Autogen",
                 "pages": [
-                  "agentic-design-patterns/autogen"
                 ]
               },
               {
                 "group": "CrewAI",
                 "pages": [
-                  "agentic-design-patterns/crewai"
                 ]
               },
               {
                 "group": "LangGraph",
                 "pages": [
-                  "agentic-design-patterns/langgraph",
                   "agentic-design-patterns/langgraph/react-agents",
                   "agentic-design-patterns/langgraph/reflex-agents",
                   "agentic-design-patterns/langgraph/reflection-agents",
