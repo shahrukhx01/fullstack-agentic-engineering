@@ -8,8 +8,9 @@
     "navigation": {
         "groups": [
             {
-                "group": "Agentic Design Patterns",
+        "group": "Agentic Design Patterns",
         "pages": [
+          "agentic-design-patterns",
           {
             "group": "Autogen",
             "pages": [
