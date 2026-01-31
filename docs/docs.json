@@ -1,7 +1,8 @@
 {
-    "$schema": "https://mintlify.com/docs.json",
-    "name": "Fullstack Agentic Engineering",
-    "theme": "mint",
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Fullstack Agentic Engineering",
+  "logo": "/assets/logo.svg",
+  "theme": "mint",
     "colors": {
         "primary": "#10b981"
     },
