@@ -51,6 +51,20 @@ def should_continue(state: MessagesState) -> str:
 ```
 Stops unless the model requested exactly one tool call.
 
+**Model invocation**
+```python
+def llm_call(state: dict):
+    return {
+        "messages": [
+            MODEL_WITH_TOOLS.invoke(
+                [SystemMessage(content=SYSTEM_PROMPT)] + state["messages"]
+            )
+        ],
+        "llm_calls": state.get("llm_calls", 0) + 1,
+    }
+```
+Single call into the model that either returns a response or triggers a tool call.
+
 **Tool execution**
 ```python
 def tool_node(state: dict):
@@ -65,6 +79,19 @@ def tool_node(state: dict):
     return {"messages": result}
 ```
 Executes the selected tool and returns its output back to the graph.
+
+**Graph assembly**
+```python
+def build_agent():
+    agent_builder = StateGraph(MessagesState)
+    agent_builder.add_node("llm_call", llm_call)
+    agent_builder.add_node("tool_node", tool_node)
+    agent_builder.add_edge(START, "llm_call")
+    agent_builder.add_conditional_edges("llm_call", should_continue, ["tool_node", END])
+    agent_builder.add_edge("tool_node", "llm_call")
+    return agent_builder.compile()
+```
+Builds the reflex loop with a single model node and a tool node.
 
 
 ## Try it yourself!
