@@ -1,0 +1,9 @@
+flowchart TD
+    A[User message] --> B{Greeting only?}
+    B -- Yes --> C[Send ACME greeting + ask how to help]
+    B -- No --> D{Topic match}
+    D -- Orders --> E[orders tool]
+    D -- Returns --> F[returns tool]
+    D -- Product inquiry --> G[product_inquiry tool]
+    D -- Shipping --> H[shipping tool]
+    D -- No match --> I[Fallback: contact support@acme.com]
