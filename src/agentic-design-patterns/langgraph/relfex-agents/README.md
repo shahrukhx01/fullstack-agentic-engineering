@@ -7,7 +7,7 @@ This recipe implements an ACME Inc. customer care agent that greets users, class
 ![Reflex agent demo](assets/demo.png)
 
 ### Reflex Agent's Routing Flow
-Below is the routing flow of the reflex agent, running in a loop based on the user's intent it triggers one of the underlying tools or responds with the default message that it can't serve user's request. Making sure short, deterministic routing keeps support flows quick and auditable:
+Below is the routing flow of the reflex agent. Based on the user's intent it triggers one of the underlying tools or responds with the default message that it can't serve user's request. Making sure short, deterministic routing keeps support flows quick and auditable:
 ```mermaid
 flowchart TD
     A[User message] --> B{Greeting only?}
