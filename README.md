@@ -1,7 +1,7 @@
 # Fullstack Agentic Engineering
 Fullstack agentic engineering is a comprehensive collection of Agentic AI project implementation, encompassing various agentic design patterns, observability tools, multi-agent systems etc. Each recipe is self-contained with its own `README.md` and virtual environment. 
 
-- Agentic Design Patterns
+- **Agentic Design Patterns**
   - LangGraph
     - React agents ([code](https://github.com/shahrukhx01/fullstack-agentic-engineering/tree/main/src/agentic-design-patterns/langgraph/react-agents), [docs](https://fullstack-agentic-engineering.mintlify.app/agentic-design-patterns/langgraph/react-agents))
     - Reflex agents ([code](https://github.com/shahrukhx01/fullstack-agentic-engineering/tree/main/src/agentic-design-patterns/langgraph/relfex-agents), [docs](https://fullstack-agentic-engineering.mintlify.app/agentic-design-patterns/langgraph/reflex-agents))
