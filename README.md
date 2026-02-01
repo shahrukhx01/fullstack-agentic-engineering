@@ -1,5 +1,5 @@
 # Fullstack Agentic Engineering
-Fullstack agentic engineering is a comprehensive collection of Agentic AI project implementation, encompassing various agentic design patterns, observability tools, multi-agent systems etc. Each recipe is self-contained with its own README.md and virtual environment. 
+Fullstack agentic engineering is a comprehensive collection of Agentic AI project implementation, encompassing various agentic design patterns, observability tools, multi-agent systems etc. Each recipe is self-contained with its own `README.md` and virtual environment. 
 
 - Agentic Design Patterns
   - LangGraph
