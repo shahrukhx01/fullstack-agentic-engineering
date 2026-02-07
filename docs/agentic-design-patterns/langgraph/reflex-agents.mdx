@@ -63,14 +63,18 @@ Single call into the model that either returns a response or triggers a tool cal
 **Tool execution**
 ```python
 def tool_node(state: dict):
+    """Performs the tool call."""
+
     result = []
     last_message = state["messages"][-1]
-    if not isinstance(last_message, AIMessage):
+    if not isinstance(last_message, AIMessage) or not last_message.tool_calls:
         return {"messages": result}
     for tool_call in last_message.tool_calls:
         tool = TOOLS_BY_NAME[tool_call["name"]]
         observation = tool.invoke(tool_call["args"])
-        result.append(ToolMessage(content=str(observation), tool_call_id=tool_call["id"]))
+        result.append(
+            ToolMessage(content=str(observation), tool_call_id=tool_call["id"])
+        )
     return {"messages": result}
 ```
 Executes the selected tool and returns its output back to the graph.
