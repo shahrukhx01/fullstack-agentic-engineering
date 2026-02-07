@@ -9,7 +9,7 @@ Reflex agents map inputs directly to actions using simple trigger rules. They re
 ## LangGraph's Customer Support Reflex Agent
 This recipe implements an ACME Inc. customer care agent that greets users, classifies each message into a single topic, and calls exactly one tool for orders, returns, product inquiries, or shipping. If the message does not match a supported topic, it returns a fixed support escalation response. This keeps the flow fast, predictable, and easy to audit.
 
-![Reflex agent demo](assets/demo.png)
+![Reflex agent demo](../../assets/agentic-design-patterns/langgraph/reflex-agents/demo.png)
 
 ### Reflex Agent's Routing Flow
 Below is the routing flow of the reflex agent. Based on the user's intent it triggers one of the underlying tools or responds with the default message that it can't serve user's request. Making sure short, deterministic routing keeps support flows quick and auditable:
