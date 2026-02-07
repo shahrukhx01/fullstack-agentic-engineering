@@ -18,6 +18,11 @@ repos:
 
   - repo: local
     hooks:
+      - id: sync-reflex-agent-docs
+        name: sync reflex-agents README to docs
+        entry: bash -c 'mkdir -p docs/agentic-design-patterns/langgraph && if ! cmp -s src/agentic-design-patterns/langgraph/reflex-agents/README.md docs/agentic-design-patterns/langgraph/reflex-agents.mdx; then cp -f src/agentic-design-patterns/langgraph/reflex-agents/README.md docs/agentic-design-patterns/langgraph/reflex-agents.mdx; fi'
+        language: system
+        pass_filenames: false
       - id: ty-check
         name: ty check
         entry: uv run ty check
