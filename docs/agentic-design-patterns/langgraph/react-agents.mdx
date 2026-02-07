@@ -3,40 +3,41 @@ title: ReAct Agents
 description: Learn how to build ReAct agents that loop through reasoning and acting.
 ---
 
-# Reflex Agents
-Reflex agents map inputs directly to actions using simple trigger rules. They respond fast and predictably, which makes them ideal for keyword routing, single-step lookups, and basic automations. Their tradeoff is limited expressiveness: they do not handle multistep reasoning or context beyond the immediate input.
+# ReAct Agents
+[ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) agents loop through reasoning and action selection, using tools when needed then synthesizing tools results to either call additional tools, ask user follow-up questions, or return a final answer.
 
-## LangGraph's Customer Support Reflex Agent
-This recipe implements an ACME Inc. customer care agent that greets users, classifies each message into a single topic, and calls exactly one tool for orders, returns, product inquiries, or shipping. If the message does not match a supported topic, it returns a fixed support escalation response. This keeps the flow fast, predictable, and easy to audit.
+## LangGraph's Customer Support ReAct Agent
+This recipe implements an ACME Inc. customer care agent that helps with shipping details. It follows a compound order-inquiry workflow: ask for the user's email, look up the `order_id`, use the `order_id` to fetch the tracking_id, and then use the tracking_id to retrieve shipping details. The agent asks only the minimum follow-up questions needed to complete the workflow and avoids guessing identifiers.
+![ReAct agent demo](assets/demo.png)
 
-![Reflex agent demo](../../assets/agentic-design-patterns/langgraph/react-agents/demo.png)
-
-### Reflex Agent's Routing Flow
-Below is the routing flow of the reflex agent. Based on the user's intent it triggers one of the underlying tools or responds with the default message that it can't serve user's request. Making sure short, deterministic routing keeps support flows quick and auditable:
+### ReAct Agent Loop
+Below is the loop for the ReAct agent. It collects the minimum required identifiers, then uses tools in a fixed sequence to fetch shipping details.
 ```mermaid
 flowchart TD
-    A[User message] --> B{Greeting only?}
-    B -- Yes --> C[Send ACME greeting + ask how to help]
-    B -- No --> D{Topic match}
-    D -- Orders --> E[orders tool]
-    D -- Returns --> F[returns tool]
-    D -- Product inquiry --> G[product_inquiry tool]
-    D -- Shipping --> H[shipping tool]
-    D -- No match --> I[Fallback: contact support@acme.com]
+    A[User message] --> B{Greeting only}
+    B -- Yes --> C[Send greeting: shipping details only and ask how to help]
+    B -- No --> D[Ask for user email]
+    D --> L[LLM ReAct loop]
+    L --> L
+    L --> E[Lookup order_id]
+    E --> F[Fetch tracking_id]
+    F --> G[Lookup shipping details]
+    G --> H[Summarize shipping details + ask if anything else is needed]
 ```
 
 ### Implementation
 **Prompt**
-> You are an ACME Inc. Customer Care Agent. Begin each conversation with a short welcome greeting for ACME Inc. customer care; if the user message is only a greeting or small talk (e.g., "hi", "hello", "thanks"), respond with a brief ACME Inc. customer care greeting and ask how you can help, then identify the topic and route to the correct tool.
+> You are an ACME Inc. Customer Care ReAct Agent. You must follow the order-inquiry workflow below exactly. Be concise and helpful.
 >
-> Topics and tools:
-> - Orders -> orders (use for order status, changes, cancellations, or charges)
-> - Returns -> returns (use for return eligibility, labels, or refunds)
-> - Product inquiry -> product_inquiry (use for product details, availability, or pricing)
-> - Shipping -> shipping (use for delivery status, delays, or address changes)
+> Conversation opening:
+> - Begin each new conversation with a short ACME Inc. customer care greeting that states you can only help with shipping details.
 >
-> If the topic does not match any of the above, respond exactly with:
-> "Your inquiry is unfortunately outside my knowledge. Please contact support@acme.com to speak with one of our customer care representatives."
+> Order inquiry workflow (always in this order):
+> 1) Ask for the user's email address.
+> 2) Use the email address to look up the user's `order_id`.
+> 3) Use the `order_id` to fetch the tracking_id.
+> 4) Use the tracking_id to look up shipping details.
+> 5) Summarize the shipping details for the user and ask if they need anything else.
 
 **Tool routing setup**
 ```python
@@ -44,7 +45,17 @@ TOOLS = [orders, returns, product_inquiry, shipping]
 TOOLS_BY_NAME = {tool.name: tool for tool in TOOLS}
 MODEL_WITH_TOOLS = model.bind_tools(TOOLS)
 ```
-Defines the supported tools and binds them to the model for single-step routing.
+Defines the supported tools and binds them to the model for single-step tool execution.
+
+**ReAct loop control**
+```python
+def should_continue(state: MessagesState) -> str:
+    last_message = state["messages"][-1]
+    if isinstance(last_message, AIMessage) and last_message.tool_calls:
+        return "tool_node"
+    return END
+```
+Stops unless the model requested exactly one tool call.
 
 **Model invocation**
 ```python
@@ -82,15 +93,15 @@ def build_agent():
     agent_builder.add_node("llm_call", llm_call)
     agent_builder.add_node("tool_node", tool_node)
     agent_builder.add_edge(START, "llm_call")
-    agent_builder.add_edge("llm_call", "tool_node")
-    agent_builder.add_edge("tool_node", END)
+    agent_builder.add_conditional_edges("llm_call", should_continue, ["tool_node", END])
+    agent_builder.add_edge("tool_node", "llm_call")
     return agent_builder.compile()
 ```
-Builds the reflex loop with a single model node and a tool node.
+Builds the ReAct loop with a single model node and a tool node.
 
 
 ## Try it yourself!
-- Check out the full Reflex Agent recipe here [LangGraph reflex agent](https://github.com/shahrukhx01/fullstack-agentic-engineering/tree/main/src/agentic-design-patterns/langgraph/reflex-agents
+- Check out the full ReAct Agent recipe here [LangGraph ReAct agent](https://github.com/shahrukhx01/fullstack-agentic-engineering/tree/main/src/agentic-design-patterns/langgraph/react-agents
 )
 - Create `.env` from `.env.example`.
-- Run `make up` and open the UI to test the reflex agent.
+- Run `make up` and open the UI to test the ReAct agent.
