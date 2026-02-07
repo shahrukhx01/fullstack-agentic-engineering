@@ -78,10 +78,12 @@ Executes the selected tool and returns its output back to the graph.
 def build_agent():
     agent_builder = StateGraph(MessagesState)
     agent_builder.add_node("llm_call", llm_call)
+    agent_builder.add_node("llm_result", llm_call)
     agent_builder.add_node("tool_node", tool_node)
     agent_builder.add_edge(START, "llm_call")
     agent_builder.add_edge("llm_call", "tool_node")
-    agent_builder.add_edge("tool_node", END)
+    agent_builder.add_edge("tool_node", "llm_result")
+    agent_builder.add_edge("llm_result", END)
     return agent_builder.compile()
 ```
 Builds the reflex loop with a single model node and a tool node.
