@@ -1,1 +1,96 @@
-/Users/shahrukh/Desktop/fullstack-agentic-engineering/src/agentic-design-patterns/langgraph/react-agents/README.md
+---
+title: ReAct Agents
+description: Learn how to build ReAct agents that loop through reasoning and acting.
+---
+
+# Reflex Agents
+Reflex agents map inputs directly to actions using simple trigger rules. They respond fast and predictably, which makes them ideal for keyword routing, single-step lookups, and basic automations. Their tradeoff is limited expressiveness: they do not handle multistep reasoning or context beyond the immediate input.
+
+## LangGraph's Customer Support Reflex Agent
+This recipe implements an ACME Inc. customer care agent that greets users, classifies each message into a single topic, and calls exactly one tool for orders, returns, product inquiries, or shipping. If the message does not match a supported topic, it returns a fixed support escalation response. This keeps the flow fast, predictable, and easy to audit.
+
+![Reflex agent demo](assets/demo.png)
+
+### Reflex Agent's Routing Flow
+Below is the routing flow of the reflex agent. Based on the user's intent it triggers one of the underlying tools or responds with the default message that it can't serve user's request. Making sure short, deterministic routing keeps support flows quick and auditable:
+```mermaid
+flowchart TD
+    A[User message] --> B{Greeting only?}
+    B -- Yes --> C[Send ACME greeting + ask how to help]
+    B -- No --> D{Topic match}
+    D -- Orders --> E[orders tool]
+    D -- Returns --> F[returns tool]
+    D -- Product inquiry --> G[product_inquiry tool]
+    D -- Shipping --> H[shipping tool]
+    D -- No match --> I[Fallback: contact support@acme.com]
+```
+
+### Implementation
+**Prompt**
+> You are an ACME Inc. Customer Care Agent. Begin each conversation with a short welcome greeting for ACME Inc. customer care; if the user message is only a greeting or small talk (e.g., "hi", "hello", "thanks"), respond with a brief ACME Inc. customer care greeting and ask how you can help, then identify the topic and route to the correct tool.
+>
+> Topics and tools:
+> - Orders -> orders (use for order status, changes, cancellations, or charges)
+> - Returns -> returns (use for return eligibility, labels, or refunds)
+> - Product inquiry -> product_inquiry (use for product details, availability, or pricing)
+> - Shipping -> shipping (use for delivery status, delays, or address changes)
+>
+> If the topic does not match any of the above, respond exactly with:
+> "Your inquiry is unfortunately outside my knowledge. Please contact support@acme.com to speak with one of our customer care representatives."
+
+**Tool routing setup**
+```python
+TOOLS = [orders, returns, product_inquiry, shipping]
+TOOLS_BY_NAME = {tool.name: tool for tool in TOOLS}
+MODEL_WITH_TOOLS = model.bind_tools(TOOLS)
+```
+Defines the supported tools and binds them to the model for single-step routing.
+
+**Model invocation**
+```python
+def llm_call(state: dict):
+    return {
+        "messages": [
+            MODEL_WITH_TOOLS.invoke(
+                [SystemMessage(content=SYSTEM_PROMPT)] + state["messages"]
+            )
+        ],
+        "llm_calls": state.get("llm_calls", 0) + 1,
+    }
+```
+Single call into the model that either returns a response or triggers a tool call.
+
+**Tool execution**
+```python
+def tool_node(state: dict):
+    result = []
+    last_message = state["messages"][-1]
+    if not isinstance(last_message, AIMessage):
+        return {"messages": result}
+    for tool_call in last_message.tool_calls:
+        tool = TOOLS_BY_NAME[tool_call["name"]]
+        observation = tool.invoke(tool_call["args"])
+        result.append(ToolMessage(content=str(observation), tool_call_id=tool_call["id"]))
+    return {"messages": result}
+```
+Executes the selected tool and returns its output back to the graph.
+
+**Graph assembly**
+```python
+def build_agent():
+    agent_builder = StateGraph(MessagesState)
+    agent_builder.add_node("llm_call", llm_call)
+    agent_builder.add_node("tool_node", tool_node)
+    agent_builder.add_edge(START, "llm_call")
+    agent_builder.add_edge("llm_call", "tool_node")
+    agent_builder.add_edge("tool_node", END)
+    return agent_builder.compile()
+```
+Builds the reflex loop with a single model node and a tool node.
+
+
+## Try it yourself!
+- Check out the full Reflex Agent recipe here [LangGraph reflex agent](https://github.com/shahrukhx01/fullstack-agentic-engineering/tree/main/src/agentic-design-patterns/langgraph/reflex-agents
+)
+- Create `.env` from `.env.example`.
+- Run `make up` and open the UI to test the reflex agent.
