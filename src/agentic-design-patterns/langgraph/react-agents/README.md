@@ -36,7 +36,7 @@ flowchart TD
 
 **Tool routing setup**
 ```python
-TOOLS = [orders, returns, product_inquiry, shipping]
+TOOLS = TOOLS = [get_order_id, get_tracking_id, get_shipping_details]
 TOOLS_BY_NAME = {tool.name: tool for tool in TOOLS}
 MODEL_WITH_TOOLS = model.bind_tools(TOOLS)
 ```
