@@ -3,7 +3,7 @@
 
 ## LangGraph's Customer Support ReAct Agent
 This recipe implements an ACME Inc. customer care agent that helps with shipping details. It follows a compound order-inquiry workflow: ask for the user's email, look up the `order_id`, use the `order_id` to fetch the tracking_id, and then use the tracking_id to retrieve shipping details. The agent asks only the minimum follow-up questions needed to complete the workflow and avoids guessing identifiers.
-![ReAct agent demo](assets/demo_react.png)
+![ReAct agent demo](assets/demo.png)
 
 ### ReAct Agent Loop
 Below is the loop for the ReAct agent. It collects the minimum required identifiers, then uses tools in a fixed sequence to fetch shipping details.
