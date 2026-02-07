@@ -15,7 +15,7 @@ from langchain.messages import (
 from langgraph.graph import END, START, StateGraph
 
 from models import ChatMessage
-from tools import orders, product_inquiry, returns, shipping
+from tools import get_order_id, get_shipping_details, get_tracking_id
 
 PROMPT_PATH = Path(__file__).with_name("prompt.md")
 
@@ -51,7 +51,7 @@ model = init_chat_model(
 )
 
 
-TOOLS = [orders, returns, product_inquiry, shipping]
+TOOLS = [get_order_id, get_tracking_id, get_shipping_details]
 TOOLS_BY_NAME = {tool.name: tool for tool in TOOLS}
 MODEL_WITH_TOOLS = model.bind_tools(TOOLS)
 

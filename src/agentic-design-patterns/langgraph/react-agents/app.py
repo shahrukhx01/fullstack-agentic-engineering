@@ -12,7 +12,7 @@ from fastapi.responses import StreamingResponse
 from agent import run_agent
 from models import AgentStreamEvent, AgentStreamRequest, ChatMessage, SessionState
 
-logger = logging.getLogger("relfex-agents")
+logger = logging.getLogger("react-agents")
 logging.basicConfig(level=logging.INFO)
 
 

@@ -41,16 +41,6 @@ MODEL_WITH_TOOLS = model.bind_tools(TOOLS)
 ```
 Defines the supported tools and binds them to the model for single-step routing.
 
-**Reflex loop control**
-```python
-def should_continue(state: MessagesState) -> str:
-    last_message = state["messages"][-1]
-    if isinstance(last_message, AIMessage) and last_message.tool_calls:
-        return "tool_node"
-    return END
-```
-Stops unless the model requested exactly one tool call.
-
 **Model invocation**
 ```python
 def llm_call(state: dict):
@@ -87,15 +77,15 @@ def build_agent():
     agent_builder.add_node("llm_call", llm_call)
     agent_builder.add_node("tool_node", tool_node)
     agent_builder.add_edge(START, "llm_call")
-    agent_builder.add_conditional_edges("llm_call", should_continue, ["tool_node", END])
-    agent_builder.add_edge("tool_node", "llm_call")
+    agent_builder.add_edge("llm_call", "tool_node")
+    agent_builder.add_edge("tool_node", END)
     return agent_builder.compile()
 ```
 Builds the reflex loop with a single model node and a tool node.
 
 
 ## Try it yourself!
-- Check out the full Reflex Agent recipe here [LangGraph reflex agent](https://github.com/shahrukhx01/fullstack-agentic-engineering/tree/main/src/agentic-design-patterns/langgraph/relfex-agents
+- Check out the full Reflex Agent recipe here [LangGraph reflex agent](https://github.com/shahrukhx01/fullstack-agentic-engineering/tree/main/src/agentic-design-patterns/langgraph/reflex-agents
 )
 - Create `.env` from `.env.example`.
 - Run `make up` and open the UI to test the reflex agent.

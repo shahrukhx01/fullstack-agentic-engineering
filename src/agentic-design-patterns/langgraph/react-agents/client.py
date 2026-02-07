@@ -24,11 +24,11 @@ API_BASE_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
 app: Any = cast(Any, FastHTML())
 
 
-@app.get("/")  # type: ignore[attr-defined]
+@app.get("/")  # type: ignore
 def index():
     return Html(
         Head(
-            Title("Reflex Agent Chat"),
+            Title("ReAct Agent Chat"),
             Script(
                 src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"
             ),
@@ -48,7 +48,7 @@ def index():
         Body(
             Div(
                 Div(
-                    Div("Reflex Agent (LangGraph)", cls="title"),
+                    Div("ReAct Agent (LangGraph)", cls="title"),
                     Div(id="messages", cls="messages"),
                     Form(
                         Div(

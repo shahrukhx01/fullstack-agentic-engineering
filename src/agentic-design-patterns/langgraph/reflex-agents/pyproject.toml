@@ -1,5 +1,5 @@
 [project]
-name = "relfex-agents"
+name = "reflex-agents"
 version = "0.1.0"
 description = "Reflex agent recipe using LangGraph tools with FastAPI and FastHTML streaming."
 readme = "README.md"
