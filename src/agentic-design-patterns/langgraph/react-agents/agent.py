@@ -1,7 +1,7 @@
 import operator
 import os
 from pathlib import Path
-from typing import Annotated, Any, TypedDict
+from typing import Annotated, Any, AsyncGenerator, TypedDict
 
 from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
@@ -48,6 +48,7 @@ model = init_chat_model(
     base_url=BASE_URL,
     api_key=API_KEY,
     model_provider="openai",
+    streaming=True,
 )
 
 
@@ -168,3 +169,27 @@ def run_agent(
     result = AGENT.invoke({"messages": lc_messages, "llm_calls": llm_calls})
     updated_messages = _from_lc_messages(result["messages"])
     return updated_messages, result.get("llm_calls", llm_calls)
+
+
+async def stream_agent(
+    messages: list[ChatMessage], llm_calls: int
+) -> AsyncGenerator[tuple[str | None, list[ChatMessage] | None, int | None], None]:
+    lc_messages = _to_lc_messages(messages)
+    last_state: dict[str, Any] = {"messages": lc_messages, "llm_calls": llm_calls}
+
+    async for mode, chunk in AGENT.astream(
+        {"messages": lc_messages, "llm_calls": llm_calls},
+        stream_mode=["messages", "values"],
+    ):
+        if mode == "messages":
+            message_chunk, _metadata = chunk
+            content = getattr(message_chunk, "content", None)
+            if content:
+                yield str(content), None, None
+        elif mode == "values":
+            if isinstance(chunk, dict) and "messages" in chunk:
+                last_state = chunk
+
+    updated_messages = _from_lc_messages(last_state.get("messages", []))
+    updated_llm_calls = last_state.get("llm_calls", llm_calls)
+    yield None, updated_messages, updated_llm_calls

@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
-from agent import run_agent
+from agent import stream_agent
 from models import AgentStreamEvent, AgentStreamRequest, ChatMessage, SessionState
 
 logger = logging.getLogger("reflex-agents")
@@ -72,23 +72,28 @@ def create_app() -> FastAPI:
             )
 
             try:
-                updated_messages, llm_calls = run_agent(
+                updated_messages: list[ChatMessage] | None = None
+                updated_llm_calls: int | None = None
+                async for token, messages, llm_calls in stream_agent(
                     session.messages, session.llm_calls
-                )
-                session.messages = updated_messages
-                session.llm_calls = llm_calls
-                store.upsert(session)
-
-                final_message = _last_assistant_message(updated_messages)
-                final_text = final_message.content if final_message else ""
-                for token in _tokenize(final_text):
-                    yield _encode_event(
-                        AgentStreamEvent(
-                            type="token",
-                            session_id=session.session_id,
-                            content=token,
+                ):
+                    if token:
+                        yield _encode_event(
+                            AgentStreamEvent(
+                                type="token",
+                                session_id=session.session_id,
+                                content=token,
+                            )
                         )
-                    )
+                    if messages is not None:
+                        updated_messages = messages
+                        updated_llm_calls = llm_calls
+
+                if updated_messages is not None:
+                    session.messages = updated_messages
+                if updated_llm_calls is not None:
+                    session.llm_calls = updated_llm_calls
+                store.upsert(session)
 
                 yield _encode_event(
                     AgentStreamEvent(
@@ -114,19 +119,6 @@ def create_app() -> FastAPI:
 def _encode_event(event: AgentStreamEvent) -> bytes:
     payload = event.model_dump(exclude_none=True)
     return (json.dumps(payload) + "\n").encode("utf-8")
-
-
-def _tokenize(text: str) -> list[str]:
-    if not text:
-        return []
-    return text.split(" ")
-
-
-def _last_assistant_message(messages: list[ChatMessage]) -> ChatMessage | None:
-    for message in reversed(messages):
-        if message.role == "assistant":
-            return message
-    return None
 
 
 app = create_app()
