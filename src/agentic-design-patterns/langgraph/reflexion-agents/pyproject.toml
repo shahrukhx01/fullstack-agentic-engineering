@@ -1,0 +1,32 @@
+[project]
+name = "reflex-agents"
+version = "0.1.0"
+description = "Reflex agent recipe using LangGraph tools with FastAPI and FastHTML streaming."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "black",
+    "fastapi",
+    "python-fasthtml",
+    "isort",
+    "markdown-it-py",
+    "langchain",
+    "langchain-community",
+    "langgraph",
+    "python-dotenv",
+    "pydantic",
+    "pre-commit",
+    "rich",
+    "ruff",
+    "ty",
+    "typing-extensions",
+    "uvicorn",
+    "langchain-openai>=1.1.7",
+]
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
+line_length = 88
